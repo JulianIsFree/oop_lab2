@@ -1,0 +1,6 @@
+desc
+code1 = readfile input.txt
+code2 = sort
+code3 = replace word1 word2
+csed
+code1 -> code2 -> code3

@@ -1,0 +1,8 @@
+Hello, test programm!
+I wish you work correctly, because I hate debugging you.
+But don't worry, at the moment I complete this unit test I'll able to forget about you!
+I really can't hold myself from stop working on you
+Hello
+Hello a
+Hello b
+Hello hello

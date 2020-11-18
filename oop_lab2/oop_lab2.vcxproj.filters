@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Parser.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ParserTest.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyWords.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="InterpreterTest.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="tests">
+      <UniqueIdentifier>{d2f40aeb-9a68-4ea8-b0bd-cef98b12753f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{1ca6288d-2cfa-4058-87da-6d513476c1cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{2decc240-11fc-404c-be16-23b720cb59ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyWords.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Exceptions.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpreter.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
