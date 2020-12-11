@@ -1,400 +1,130 @@
-#include "pch.h"
 #include "Parser.h"
-#include "Helper.h"
-#include "Exceptions.h"
-#include "KeyWords.h"
+#include "Constants.h"
+#include "Exception.h"
 
-using namespace labExceptions;
-using namespace labParser;
-
-Parser::Parser(const std::string & fileName)
+bool labParser::WorkflowParser::isBlockComplete() const
 {
-	this->fileName = fileName;
-	analyser = Analyser();
+	return currBlock.getContent().size() == labBlock::getContentSize(currBlock.getType());
 }
 
-void Parser::run()
+void labParser::WorkflowParser::processBlock(const labToken::Token& token)
 {
-	std::ifstream fin(fileName);
-	resetState();
+	using namespace labToken;
+	using namespace labBlock;
 
-	if (!fin.is_open())
-		throw FileInputError(codeHelper::fileNotOpened(fileName));
-	
-	if(fin.fail())
-		throw FileInputError("error occured with file " + fileName);
+	if (TokenType::BLOCK_TYPE == token.getType())
+		currBlock = Block(getBlockType(token.getWord()));
 
-	fin.imbue(std::locale(std::locale(), new codeHelper::DelimsLocale(" \n"))); 
-	try
+	if (TokenType::BLOCK_CONTENT == token.getType())
+		currBlock.addContent(token.getWord());
+}
+
+void labParser::WorkflowParser::reset()
+{
+	currBlock = Block();
+	currBlockName = "";
+}
+
+// this is not the fastest way to calculate token type
+// but the easiest one in case of implementation 
+labToken::Token labParser::WorkflowParser::getToken(const std::string & word) const
+{
+	using namespace labToken;
+	using namespace labConstants;
+
+	if (OPERATOR_NEXT == word)
+		return Token(TokenType::OPERATOR_NEXT, word);
+
+	if (OPERATOR_SET == word)
+		return Token(TokenType::OPERATOR_SET, word);
+
+	if (DESC == word)
+		return Token(TokenType::DESC, word);
+
+	if (CSED == word)
+		return Token(TokenType::CSED, word);
+
+	if (TokenType::OPERATOR_SET == lastToken.getType() ||
+		TokenType::DESC == lastToken.getType() || 
+		TokenType::CSED == lastToken.getType() )
+		return Token(TokenType::BLOCK_TYPE, word);
+
+	if (TokenType::OPERATOR_NEXT == lastToken.getType())
+		return Token(TokenType::BLOCK_ID, word);
+
+	if (!isBlockComplete())
+		return Token(TokenType::BLOCK_CONTENT, word);
+
+	return Token(TokenType::BLOCK_ID, word);
+}
+
+bool labParser::WorkflowParser::isTokenAllowed(const labToken::Token & token) const
+{
+	using namespace labToken;
+	TokenType type = token.getType();
+	switch (lastToken.getType())
 	{
-		collectBlocks(fin);
-		collectSequence(fin);
-	}
-	catch (Exception e)
-	{
-		resetState();
-		e.printMessage();
-		throw e;
-	}
-
-	fin.close();
-}
-
-void labParser::Parser::setFileName(const std::string & fileName)
-{
-	this->fileName = fileName;
-}
-
-const std::vector<Block>& Parser::getBlockSequence() const
-{
-	return sequence;
-}
-
-const std::map<std::string, Block>& labParser::Parser::getBlockTable() const
-{
-	return blockTable;
-}
-
-void Parser::collectBlocks(std::ifstream& fin)
-{
-	if (!blockTable.empty() || !sequence.empty() ||
-		analyser.getLastTokenInBlockSection() != Token::NO_TOKEN ||
-		analyser.getLastTokenInSequenceSection() != Token::NO_TOKEN)
-		throw ParserStateError("parser state isn't reset");
-
-	if (!fin.is_open())
-		throw FileInputError(codeHelper::fileNotOpened(fileName));
-	
-	std::vector<std::string> content;
-	std::string blockID;
-	BlockName blockName = BlockName::EMPTY_BLOCK;
-	Block block = Block();
-	
-	bool endReached = false;
-	while (!endReached)
-	{
-		if (fin.eof())
-			throw CSEDNotFound("unexpected end of file");
-		
-		if (fin.fail())
-			throw FileInputError("error occured with file while parsing: " + fileName);
-
-		std::string word;
-		fin >> word;
-		Token token = analyser.convertStr2Token(word, block);
-
-		if (!analyser.doSemanticCheckForBlockSection(token))
-			throw BadToken("token " + word + " isn't allowed after " + analyser.convertToken2Str(analyser.getLastTokenInBlockSection()));
-		
-		switch (token)
-		{
-		case Token::DESC:
-			continue;
-		case Token::BLOCK_ID:
-			blockID = word;
-			break;
-		case Token::BLOCK_TYPE:
-			blockName = str2block(word);
-			block.setBlockName(blockName);
-			if (blockName == BlockName::EMPTY_BLOCK)
-				throw BadBlock("block-type: " + word + "isn't expected");
-
-			if (false == Block::hasContent(str2block(word)))
-			{
-				blockTable[blockID] = block;
-				blockID.clear();
-				content.clear();
-				blockName = BlockName::EMPTY_BLOCK;
-				block = Block();
-			}
-			break;
-		case Token::BLOCK_CONTENT:
-			if (false == Block::hasContent(block.getBlockName()))
-				throw BadToken("block " + block2str(block.getBlockName()) + " mustn't have any content");
-
-			if (blockTable.find(blockID) != blockTable.end())
-				throw BlockRedefiniton(blockID);
-
-			content.push_back(word);
-			block.addContent(word);
-			if (block.getBlockName() != BlockName::REPLACE 
-				|| content.size() == 2) // if blockName == replace && content.size() == 1 then no block assign required
-			{
-				blockTable[blockID] = block;
-				blockID.clear();
-				content.clear();
-				blockName = BlockName::EMPTY_BLOCK;
-				block = Block();
-			}
-			break;
-		case Token::OPERATOR_SET:
-			continue;
-		case Token::CSED:
-			endReached = true;
-			break;
-		default:
-			throw Exception("fatal error: " + blockID + "::" +  std::string(block));
-		}
-	}
-}
-
-void labParser::Parser::collectSequence(std::ifstream & fin)
-{
-	std::string word;
-	while (fin >> word)
-	{
-		Token token = analyser.convertStr2Token(word);
-
-		if (!analyser.doSemanticCheckForSequenceSection(token))
-			throw BadToken("token: " + analyser.convertToken2Str(token) + " isn't allowed after token: " + analyser.convertToken2Str(analyser.getLastTokenInSequenceSection()));
-		
-		switch (token)
-		{
-		case Token::BLOCK_ID:
-			if (blockTable.find(word) == blockTable.end())
-				throw BlockNotFound(word);
-
-			sequence.push_back(blockTable[word]);
-			break;
-		case Token::OPERATOR_NEXT:
-			continue;
-		default:
-			throw BadToken("unexpected token " + analyser.convertToken2Str(token) + " in sequence section");
-		}
-	}
-
-	if (!analyser.isBlockIDLastInSequenceSection())
-		throw BadToken("unexpected end of sequence section, last token: " + analyser.convertToken2Str(analyser.getLastTokenInSequenceSection()));
-}
-
-void Parser::resetState()
-{
-	blockTable.clear();
-	sequence.clear();
-	analyser = Analyser();
-}
-
-bool labParser::Analyser::doSemanticCheckForBlockSection(const Token & token)
-{
-	Token prevLastToken = lastTokenInBlockSection;
-	lastTokenInBlockSection = token;
-
-	switch (prevLastToken)
-	{
-	case Token::NO_TOKEN:
-		return token == Token::DESC;
-	case Token::DESC:
-		return token == Token::BLOCK_ID;
-	case Token::BLOCK_ID:
-		return token == Token::OPERATOR_SET;
-	case Token::OPERATOR_SET:
-		return token == Token::BLOCK_TYPE;
-	case Token::BLOCK_TYPE:
-		return token == Token::BLOCK_ID ||
-			token == Token::BLOCK_CONTENT ||
-			token == Token::CSED;
-	case Token::BLOCK_CONTENT:
-		return token == Token::BLOCK_CONTENT ||
-			token == Token::BLOCK_ID ||
-			token == Token::CSED;
+	case TokenType::INIT_TOKEN:
+		return type == TokenType::DESC;
+	case TokenType::DESC:
+		return type == TokenType::CSED || type == TokenType::BLOCK_ID;
+	case TokenType::CSED:
+	case TokenType::OPERATOR_NEXT:
+		return type == TokenType::BLOCK_ID;
+	case TokenType::OPERATOR_SET:
+		return type == TokenType::BLOCK_TYPE;
+	case TokenType::BLOCK_ID:
+		return type == TokenType::OPERATOR_NEXT || type == TokenType::OPERATOR_SET;
+	case TokenType::BLOCK_TYPE:
+	case TokenType::BLOCK_CONTENT:
+		return type == TokenType::BLOCK_CONTENT || type == TokenType::BLOCK_ID ||
+			type == TokenType::CSED;
 	default:
 		return false;
 	}
 }
 
-bool labParser::Analyser::doSemanticCheckForSequenceSection(const Token & token)
+bool labParser::WorkflowParser::processToken(const labToken::Token & token)
 {
-	Token prevLastToken = lastTokenInSequenceSection;
-	lastTokenInSequenceSection = token;
-	switch (prevLastToken)
+	using namespace labToken;
+
+	bool result = isTokenAllowed(token);
+	processBlock(token);
+	lastToken = token;
+	
+	return result;
+}
+
+//bool labParser::WorkflowParser::processWord(const std::string & word)
+//{
+//	return processToken(getToken(word));
+//}
+
+bool labParser::WorkflowParser::isNextTokenExpected() const
+{
+	using namespace labToken;
+	TokenType type = lastToken.getType();
+	switch (type)
 	{
-	case Token::BLOCK_ID:
-		return token == Token::OPERATOR_NEXT;
-	case Token::NO_TOKEN:
-	case Token::OPERATOR_NEXT:
-		return token == Token::BLOCK_ID;
-	default:
+	case TokenType::BAD_TOKEN:
+	case TokenType::NO_TOKEN:
+	case TokenType::INIT_TOKEN:
+	case TokenType::CSED:
+	case TokenType::BLOCK_ID:
 		return false;
+	case TokenType::BLOCK_TYPE:
+	case TokenType::BLOCK_CONTENT:
+		return isBlockComplete();
+	default:
+		return true;
 	}
 }
 
-bool labParser::Analyser::isBlockIDLastInSequenceSection() const
+const labParser::Block & labParser::WorkflowParser::getBlock() const
 {
-	return  lastTokenInSequenceSection == Token::NO_TOKEN ||
-			lastTokenInSequenceSection == Token::BLOCK_ID;
-}
+	using namespace labException;
+	if (!isBlockComplete())
+		throw BadBlockException("uncompleted block");
 
-const Token & labParser::Analyser::getLastTokenInBlockSection() const
-{
-	return lastTokenInBlockSection;
-}
-
-const Token & labParser::Analyser::getLastTokenInSequenceSection() const
-{
-	return lastTokenInSequenceSection;
-}
-
-Token labParser::Analyser::convertStr2Token(const std::string & str, const Block& block) const
-{
-	if (str == labKeyWords::OPERATOR_NEXT)
-		return Token::OPERATOR_NEXT;
-
-	if (str == labKeyWords::OPERATOR_SET)
-		return Token::OPERATOR_SET;
-
-	if (str == labKeyWords::DESC)
-		return Token::DESC;
-
-	if (str == labKeyWords::CSED)
-		return Token::CSED;
-
-	if (labKeyWords::isBlockType(str))
-		return Token::BLOCK_TYPE;
-
-	// if sequence section hasn't been reached, then there may be a content for a block
-	if (lastTokenInSequenceSection == Token::NO_TOKEN)
-	{
-		if ((block.getBlockName() == BlockName::REPLACE && block.getContent().size() < 2) ||
-			(Block::hasContent(block.getBlockName()) && block.getContent().size() < 1))
-			return Token::BLOCK_CONTENT;
-	}
-	
-	return Token::BLOCK_ID;
-}
-
-std::string labParser::Analyser::convertToken2Str(const Token & token) const
-{
-	if (token == Token::OPERATOR_NEXT)
-		return labKeyWords::OPERATOR_NEXT;
-
-	if (token == Token::OPERATOR_SET)
-		return labKeyWords::OPERATOR_SET;
-
-	if (token == Token::DESC)
-		return labKeyWords::DESC;
-	
-	if (token == Token::CSED)
-		return labKeyWords::CSED;
-
-	if (token == Token::BLOCK_ID)
-		return "BLOCK_ID"; // there is no specific return for BLOCK_ID token
-	
-	if (token == Token::BLOCK_TYPE)
-		return "BLOCK_TYPE"; // as for the BLOCK_ID token
-
-	if (token == Token::BLOCK_CONTENT)
-		return "BLOCK_CONTENT"; // as for BLOCK_ID token
-
-	if (token == Token::NO_TOKEN)
-		return "NO_TOKEN"; // as for BLOCK_ID
-
-	return "BAD_TOKEN";
-}
-
-BlockName labParser::str2block(const std::string & word)
-{
-	if (word == labKeyWords::READFILE)
-		return BlockName::READFILE;
-	
-	if (word == labKeyWords::WRITEFILE)
-		return BlockName::WRITEFILE;
-	
-	if (word == labKeyWords::GREP)
-		return BlockName::GREP;
-	
-	if (word == labKeyWords::SORT)
-		return BlockName::SORT;
-	
-	if (word == labKeyWords::REPLACE)
-		return BlockName::REPLACE;
-
-	if (word == labKeyWords::DUMP)
-		return BlockName::DUMP;
-
-	return BlockName::EMPTY_BLOCK;
-}
-
-std::string labParser::block2str(const BlockName & blockName)
-{
-	if (blockName == BlockName::DUMP)
-		return labKeyWords::DUMP;
-
-	if (blockName == BlockName::REPLACE)
-		return labKeyWords::REPLACE;
-
-	if (blockName == BlockName::SORT)
-		return labKeyWords::SORT;
-
-	if (blockName == BlockName::GREP)
-		return labKeyWords::GREP;
-
-	if (blockName == BlockName::WRITEFILE)
-		return labKeyWords::WRITEFILE;
-
-	if (blockName == BlockName::READFILE)
-		return labKeyWords::READFILE;
-
-	return labKeyWords::EMPTY_BLOCK;
-}
-
-labParser::Block::Block(const Block & block)
-{
-	this->content = block.getContent();
-	this->blockName = block.getBlockName();
-}
-
-const std::vector<std::string>& labParser::Block::getContent() const
-{
-	return content;
-}
-
-BlockName labParser::Block::getBlockName() const
-{
-	return blockName;
-}
-
-void labParser::Block::setBlockName(const BlockName & blockName)
-{
-	this->blockName = blockName;
-}
-
-void labParser::Block::setContent(const std::vector<std::string>& content)
-{
-	this->content = std::vector<std::string>(content);
-}
-
-void labParser::Block::addContent(const std::string & content)
-{
-	this->content.push_back(content);
-}
-
-Block & labParser::Block::operator=(const Block & block)
-{
-	this->content = std::vector<std::string>(block.getContent());
-	this->blockName = block.getBlockName();
-	return *this;
-}
-
-bool labParser::Block::hasContent(const BlockName & name)
-{
-	return 
-		name == BlockName::WRITEFILE ||
-		name == BlockName::READFILE ||
-		name == BlockName::REPLACE ||
-		name == BlockName::GREP ||
-		name == BlockName::DUMP;
-}
-
-labParser::Block::operator std::string()
-{
-	std::string contentStr = "[";
-	for (auto iter = content.cbegin(); iter != content.cend(); ++iter)
-		contentStr += *iter + ",";
-
-	if (contentStr[contentStr.length() - 1] == ',')
-		contentStr[contentStr.length() - 1] = ']';
-	else
-		contentStr.push_back(']');
-
-	return block2str(blockName) + "::" + contentStr;
+	return currBlock;
 }

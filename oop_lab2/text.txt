@@ -1,8 +1,0 @@
-desc
-code1 = readfile hello_text.txt
-code2 = sort
-code3 = grep Hello
-code4 = replace Hello bye
-code5 = dump result.txt
-csed
-code1 -> code3 -> code2 -> code4 -> code5

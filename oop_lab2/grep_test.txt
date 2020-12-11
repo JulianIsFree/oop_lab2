@@ -1,4 +1,0 @@
-abc abcd
-abcd
-abcd abc
-ab cd

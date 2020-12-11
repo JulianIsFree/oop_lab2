@@ -1,5 +1,0 @@
-bye
-bye a
-bye b
-bye hello
-bye, test programm!

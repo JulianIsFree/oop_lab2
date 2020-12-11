@@ -33,23 +33,21 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
-    <ClInclude Include="Exceptions.h" />
-    <ClInclude Include="Helper.h" />
-    <ClInclude Include="Interpreter.h" />
-    <ClInclude Include="KeyWords.h" />
-    <ClInclude Include="Parser.h" />
-    <ClInclude Include="pch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Helper.cpp" />
-    <ClCompile Include="Interpreter.cpp" />
-    <ClCompile Include="InterpreterTest.cpp" />
-    <ClCompile Include="KeyWords.cpp" />
-    <ClCompile Include="Parser.cpp" />
-    <ClCompile Include="ParserTest.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Block.h" />
+    <ClInclude Include="Compiler.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Exception.h" />
+    <ClInclude Include="LexicalAnalyzer.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="Token.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="LexicalAnalyzer.cpp" />
+    <ClCompile Include="Parser.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
