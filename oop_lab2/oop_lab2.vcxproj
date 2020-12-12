@@ -37,16 +37,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Block.h" />
+    <ClInclude Include="Builder.h" />
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="Executor.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="TextProcessor.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Token.h" />
+    <ClInclude Include="Worker.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Builder.cpp" />
     <ClCompile Include="Compiler.cpp" />
     <ClCompile Include="CompilerTest.cpp" />
     <ClCompile Include="Helper.cpp" />
@@ -55,6 +59,8 @@
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="TextProcessorTest.cpp" />
     <ClCompile Include="Token.cpp" />
+    <ClCompile Include="Worker.cpp" />
+    <ClCompile Include="WorkerTest.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

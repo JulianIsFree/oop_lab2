@@ -25,7 +25,7 @@ void labParser::WorkflowParser::processBlock(const labToken::Token& token)
 
 void labParser::WorkflowParser::resetBlock()
 {
-	currBlock = Block();
+	currBlock = labBlock::Block();
 	currBlockName = "";
 }
 
@@ -129,7 +129,7 @@ bool labParser::WorkflowParser::isEmptyBlock()
 	return currBlock.getType() == labBlock::BlockType::EMPTY_BLOCK;
 }
 
-const labParser::Block & labParser::WorkflowParser::getBlock() const
+const labBlock::Block & labParser::WorkflowParser::getBlock() const
 {
 	using namespace labException;
 	if (!isBlockComplete())

@@ -57,7 +57,7 @@ TEST(WorkflowCompiler, run)
 	EXPECT_EQ(chain[4].getContent()[0], "output.txt");
 }
 
-TEST(WorkflowCompiler, run)
+TEST(WorkflowCompiler, run_throws1)
 {
 	using namespace labCompiler;
 	using namespace labException;
@@ -69,12 +69,12 @@ TEST(WorkflowCompiler, run)
 		"name1 = readfile input.txt",
 		"name2 = grep hello",
 		"name3 = dump dump.txt",
-		"name4 = readfile input.txt",
+		"name4 = readfile input.txt", //readfile after dump isn't allowed
 		"csed",
 		"name1 -> name2 -> name2 -> name3 -> name4"
 	};
 	createFile(fileName, content);
 
 	WorkflowCompiler compiler(fileName);
-	EXPECT_THROW(compiler.run(), BlockSequenceIsNotAllowedException("dump", "readfile"));
+	EXPECT_ANY_THROW(compiler.run());
 }

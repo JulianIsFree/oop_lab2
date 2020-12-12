@@ -2,23 +2,11 @@
 #define LEXICAL_ANALYZER_H
 #include <fstream>
 #include <vector>
+#include "Helper.h"
+using namespace labHelper;
 
 namespace labTextProcessor
 {
-	struct DelimsLocale : std::ctype<char>
-	{
-		DelimsLocale(std::string const &delims) : std::ctype<char>(get_table(delims)) {}
-
-		static std::ctype_base::mask const* get_table(std::string const &delims)
-		{
-			static std::vector<std::ctype_base::mask> delimiters(table_size, std::ctype_base::mask());
-			for (unsigned char ch : delims)
-				delimiters[ch] = std::ctype_base::space;
-
-			return &delimiters[0];
-		}
-	};
-
 	class TextProcessor
 	{
 	public:

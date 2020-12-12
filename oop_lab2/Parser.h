@@ -7,7 +7,8 @@
 
 namespace labParser
 {
-	using Block = labBlock::_Block<std::string>;
+	//moved to Block.h
+	//using Block = labBlock::_Block<std::string>;
 
 	// Syntax and semantic check
 	class Parser
@@ -36,7 +37,7 @@ namespace labParser
 		// for tests
 		void _setLastToken(const labToken::Token& token) { lastToken = token; };
 	private:
-		Block currBlock;
+		labBlock::Block currBlock;
 		std::string currBlockName;
 		labToken::Token lastToken;
 		bool csedReached;
@@ -57,7 +58,7 @@ namespace labParser
 
 		bool isBlockComplete() const; // tested
 
-		const Block& getBlock() const;
+		const labBlock::Block& getBlock() const;
 		std::string getBlockName() const { return currBlockName; };
 	};
 }

@@ -24,11 +24,13 @@ namespace labCompiler
 	};
 
 	// compiler isn't responsible for exception processing
-	class WorkflowCompiler : public Compiler<labParser::Block>
+	// and it doesn't compile anything at all
+	// the name of the class just represents the idea
+	class WorkflowCompiler : public Compiler<labBlock::Block>
 	{
 	private:
-		std::vector<labParser::Block> blockChain; // chain to execute
-		std::map<std::string, labParser::Block> blockTable;	// table: (identifier, block)
+		std::vector<labBlock::Block> blockChain; // chain to execute
+		std::map<std::string, labBlock::Block> blockTable;	// table: (identifier, block)
 
 		/* 
 		Both parser and analyzer must guarantee strong exception safety 
@@ -40,8 +42,8 @@ namespace labCompiler
 		WorkflowParser parser;
 
 		// for strong exception safety
-		std::vector<labParser::Block> chainBackUp;
-		std::map<std::string, labParser::Block> tableBackUp;
+		std::vector<labBlock::Block> chainBackUp;
+		std::map<std::string, labBlock::Block> tableBackUp;
 		void doBackUp();
 		void setBackUp();
 
@@ -53,8 +55,8 @@ namespace labCompiler
 	public:
 		WorkflowCompiler(const std::string& sourceFile);
 		virtual void run() override;
-		const std::vector<labParser::Block>& getBlockChain() const { return blockChain; };
-		const std::map<std::string, labParser::Block>& getBlocks() const { return blockTable; };
+		const std::vector<labBlock::Block>& getBlockChain() const { return blockChain; };
+		const std::map<std::string, labBlock::Block>& getBlocks() const { return blockTable; };
 	};
 }
 
