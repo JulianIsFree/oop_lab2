@@ -5,11 +5,11 @@
 #include <string>
 
 #include "Parser.h"
-#include "LexicalAnalyzer.h"
+#include "TextProcessor.h"
 #include "Block.h"
 
 using namespace labParser;
-using namespace labLexicalAnalyzer;
+using namespace labTextProcessor;
 
 namespace labCompiler
 {
@@ -21,21 +21,40 @@ namespace labCompiler
 		virtual ~Compiler() {};
 
 		virtual void run() {};
-		virtual std::vector<T> getBlockChain() { return std::vector<T>(); };
-		virtual std::map<std::string, T> getBlocks() { return std::map<std::string, T>(); };
 	};
 
+	// compiler isn't responsible for exception processing
 	class WorkflowCompiler : public Compiler<labParser::Block>
 	{
 	private:
 		std::vector<labParser::Block> blockChain; // chain to execute
 		std::map<std::string, labParser::Block> blockTable;	// table: (identifier, block)
-		
-		// TODO: rename LexicalAnalyzer to TextProcessor
-		LexicalAnalyzer analyzer;
-		Parser parser;
+
+		/* 
+		Both parser and analyzer must guarantee strong exception safety 
+			...but they don't.
+		Since it'a problem I would find out solution in the future.
+		TODO: make Workflow-things guarantee strong exception safety
+		*/
+		WorkflowTextProcessor processor;
+		WorkflowParser parser;
+
+		// for strong exception safety
+		std::vector<labParser::Block> chainBackUp;
+		std::map<std::string, labParser::Block> tableBackUp;
+		void doBackUp();
+		void setBackUp();
+
+		class CompilerTester;
+		friend class CompilerTester;
+
+		void processBlockSegment();
+		void processCodeSegment();
 	public:
 		WorkflowCompiler(const std::string& sourceFile);
+		virtual void run() override;
+		const std::vector<labParser::Block>& getBlockChain() const { return blockChain; };
+		const std::map<std::string, labParser::Block>& getBlocks() const { return blockTable; };
 	};
 }
 

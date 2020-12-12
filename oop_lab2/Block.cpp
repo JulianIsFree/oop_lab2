@@ -1,4 +1,5 @@
 #include "Block.h"
+#include "Exception.h"
 #include "Constants.h"
 
 int labBlock::getContentSize(BlockType type)
@@ -43,4 +44,73 @@ labBlock::BlockType labBlock::getBlockType(const std::string & word)
 		return BlockType::REPLACE;
 
 	return BlockType::EMPTY_BLOCK;
+}
+
+std::string labBlock::getBlockTypeName(const BlockType & type)
+{
+	using namespace labConstants;
+	using namespace labException;
+
+	switch (type)
+	{
+	case BlockType::READFILE:
+		return READFILE;
+	case BlockType::WRITEFILE:
+		return WRITEFILE;
+	case BlockType::DUMP:
+		return DUMP;
+	case BlockType::GREP:
+		return GREP;
+	case BlockType::REPLACE:
+		return REPLACE;
+	case BlockType::EMPTY_BLOCK:
+		return EMPTY_BLOCK;
+	case BlockType::SORT:
+		return SORT;
+	default:
+		throw ShouldNotReachThereException("Default case of getBlockTypeName in Block.h");
+	}
+}
+
+size_t labBlock::getNumberOfInputs(const BlockType & type)
+{
+	using namespace labException;
+	switch (type)
+	{
+	case BlockType::EMPTY_BLOCK:
+	case BlockType::READFILE:
+		return 0;
+	case BlockType::WRITEFILE:
+	case BlockType::DUMP:
+	case BlockType::GREP:
+	case BlockType::SORT:
+	case BlockType::REPLACE:
+		return 1;
+	default: // case of BAD_BLOCK is also included
+		throw ShouldNotReachThereException("Default case of getNumberOfInputs() in Block.h");
+	}
+}
+
+size_t labBlock::getNumberOfOutputs(const BlockType & type)
+{
+	using namespace labException;
+	switch (type)
+	{
+	case BlockType::EMPTY_BLOCK:
+	case BlockType::WRITEFILE:
+		return 0;
+	case BlockType::READFILE:
+	case BlockType::DUMP:
+	case BlockType::GREP:
+	case BlockType::SORT:
+	case BlockType::REPLACE:
+		return 1;
+	default: // case of BAD_BLOCK is also included
+		throw ShouldNotReachThereException("Default case of getNumberOfOutputs() in Block.h");
+	}
+}
+
+bool labBlock::isBlockSequenceAllowed(const BlockType & first, const BlockType & second)
+{
+	return getNumberOfOutputs(first) == getNumberOfInputs(second);
 }

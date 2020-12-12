@@ -40,14 +40,21 @@
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Exception.h" />
-    <ClInclude Include="LexicalAnalyzer.h" />
+    <ClInclude Include="Helper.h" />
+    <ClInclude Include="TextProcessor.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
-    <ClCompile Include="LexicalAnalyzer.cpp" />
+    <ClCompile Include="Compiler.cpp" />
+    <ClCompile Include="CompilerTest.cpp" />
+    <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="ParserTest.cpp" />
+    <ClCompile Include="TextProcessor.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="TextProcessorTest.cpp" />
+    <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

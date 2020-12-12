@@ -3,7 +3,7 @@
 #include <string>
 #include "Token.h"
 #include "Block.h"
-#include "LexicalAnalyzer.h"
+#include "TextProcessor.h"
 
 namespace labParser
 {
@@ -22,33 +22,43 @@ namespace labParser
 		virtual bool isTokenAllowed(const labToken::Token& token) const { return false; };
 		
 		// updates state of analyzer (if any) and returns isTokenAllowed(token)
-		// may throws exceptions
-		virtual bool processToken(const labToken::Token& token) { return isTokenAllowed(token); };
+		// may throw exceptions
+		virtual void processToken(const labToken::Token& token) {};
 		
 		//virtual bool processWord(const std::string& word) { return processToken(getToken(word)); };
 		// tells if next token must to be (csed after desc and etc)
 		virtual bool isNextTokenExpected() const { return false; };
 	};
 
-	class WorkflowParser : Parser
+	class WorkflowParser : public Parser
 	{
+	protected:
+		// for tests
+		void _setLastToken(const labToken::Token& token) { lastToken = token; };
+	private:
 		Block currBlock;
 		std::string currBlockName;
 		labToken::Token lastToken;
+		bool csedReached;
 
-		bool isBlockComplete() const;
 		void processBlock(const labToken::Token& token);
-		void reset();
+		void resetBlock();
 	public:
-		WorkflowParser() : lastToken(labToken::TokenType::INIT_TOKEN, "") {};
-		virtual labToken::Token getToken(const std::string& word) const override;
-		virtual bool isTokenAllowed(const labToken::Token& token) const override;
-		virtual bool processToken(const labToken::Token& token) override;
 		
-		// combining getToken and processToken
-		//virtual bool processWord(const std::string& word);
-		virtual bool isNextTokenExpected() const;
+		WorkflowParser() : lastToken(labToken::TokenType::INIT_TOKEN, ""), csedReached(false) {};
+		virtual labToken::Token getToken(const std::string& word) const override; // no tests required
+		virtual bool isTokenAllowed(const labToken::Token& token) const override; // no tests required
+		
+		// Once block is ready receiving next token by this function will destroy previous block.  
+		virtual void processToken(const labToken::Token& token) override; // tested
+		
+		virtual bool isNextTokenExpected() const override; // tested
+		bool isEmptyBlock(); // no tests required
+
+		bool isBlockComplete() const; // tested
+
 		const Block& getBlock() const;
+		std::string getBlockName() const { return currBlockName; };
 	};
 }
 #endif // !PARSER_H

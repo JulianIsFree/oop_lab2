@@ -11,15 +11,19 @@ void labParser::WorkflowParser::processBlock(const labToken::Token& token)
 {
 	using namespace labToken;
 	using namespace labBlock;
-
-	if (TokenType::BLOCK_TYPE == token.getType())
-		currBlock = Block(getBlockType(token.getWord()));
+	
+	if (isBlockComplete() && !isEmptyBlock())
+		resetBlock();
 
 	if (TokenType::BLOCK_CONTENT == token.getType())
 		currBlock.addContent(token.getWord());
+	else if (TokenType::BLOCK_TYPE == token.getType())
+		currBlock = Block(getBlockType(token.getWord()));
+	else if (TokenType::BLOCK_ID == token.getType())
+		currBlockName = token.getWord();
 }
 
-void labParser::WorkflowParser::reset()
+void labParser::WorkflowParser::resetBlock()
 {
 	currBlock = Block();
 	currBlockName = "";
@@ -44,12 +48,12 @@ labToken::Token labParser::WorkflowParser::getToken(const std::string & word) co
 	if (CSED == word)
 		return Token(TokenType::CSED, word);
 
-	if (TokenType::OPERATOR_SET == lastToken.getType() ||
-		TokenType::DESC == lastToken.getType() || 
-		TokenType::CSED == lastToken.getType() )
+	if (TokenType::OPERATOR_SET == lastToken.getType())
 		return Token(TokenType::BLOCK_TYPE, word);
 
-	if (TokenType::OPERATOR_NEXT == lastToken.getType())
+	if (TokenType::OPERATOR_NEXT == lastToken.getType() ||
+		TokenType::DESC == lastToken.getType() || 
+		TokenType::CSED == lastToken.getType() )
 		return Token(TokenType::BLOCK_ID, word);
 
 	if (!isBlockComplete())
@@ -84,21 +88,20 @@ bool labParser::WorkflowParser::isTokenAllowed(const labToken::Token & token) co
 	}
 }
 
-bool labParser::WorkflowParser::processToken(const labToken::Token & token)
+void labParser::WorkflowParser::processToken(const labToken::Token & token)
 {
 	using namespace labToken;
+	using namespace labException;
 
-	bool result = isTokenAllowed(token);
+	if (!isTokenAllowed(token))
+		throw BadTokenException(token);
+	
+	if (token == TokenType::CSED)
+		csedReached = true;
+
 	processBlock(token);
 	lastToken = token;
-	
-	return result;
 }
-
-//bool labParser::WorkflowParser::processWord(const std::string & word)
-//{
-//	return processToken(getToken(word));
-//}
 
 bool labParser::WorkflowParser::isNextTokenExpected() const
 {
@@ -110,21 +113,27 @@ bool labParser::WorkflowParser::isNextTokenExpected() const
 	case TokenType::NO_TOKEN:
 	case TokenType::INIT_TOKEN:
 	case TokenType::CSED:
-	case TokenType::BLOCK_ID:
 		return false;
+	case TokenType::BLOCK_ID:
+		return !csedReached;
 	case TokenType::BLOCK_TYPE:
 	case TokenType::BLOCK_CONTENT:
-		return isBlockComplete();
+		return !isBlockComplete();
 	default:
 		return true;
 	}
+}
+
+bool labParser::WorkflowParser::isEmptyBlock()
+{
+	return currBlock.getType() == labBlock::BlockType::EMPTY_BLOCK;
 }
 
 const labParser::Block & labParser::WorkflowParser::getBlock() const
 {
 	using namespace labException;
 	if (!isBlockComplete())
-		throw BadBlockException("uncompleted block");
+		throw UnfinishedBlockException("uncompleted block");
 
 	return currBlock;
 }

@@ -32,10 +32,53 @@ namespace labException
 		LexicalError(const std::string& word) : Exception("Word " + word + " contains lexical error") {};
 	};
 
-	class BadBlockException : Exception
+	class UnfinishedBlockException : Exception
 	{
 	public:
-		BadBlockException(const std::string& why) : Exception("You don't want to get bad block: " + why) {};
+		UnfinishedBlockException(const std::string& why) : Exception("You don't want to get bad block: " + why) {};
+	};
+
+	class BlockDoesNotExistsException : Exception
+	{
+	public:
+		BlockDoesNotExistsException(const std::string& name) : Exception("No such block with name: " + name) {};
+	};
+
+	class BlockRedefenitionException : Exception
+	{
+	public:
+		BlockRedefenitionException(const std::string &name) : Exception("Redefinition of blocks isn't allowed: " + name) {};
+	};
+
+	class BlockSequenceIsNotAllowedException : Exception
+	{
+	public:
+		BlockSequenceIsNotAllowedException(const std::string first, const std::string second) : 
+			Exception("BlockType " + second + " isn't allowed after " + first) {};
+	};
+
+	class BadTokenException : Exception
+	{
+	public:
+		BadTokenException(const std::string& token) : Exception("Token isn't allowed: " + token) {};
+	};
+
+	class ShouldNotReachThereException : Exception
+	{
+	public:
+		ShouldNotReachThereException(const std::string& where) : Exception(where) {};
+	};
+
+	class UnexpectedEndOfFileException : Exception
+	{
+	public:
+		UnexpectedEndOfFileException(const std::string& why) : Exception("Unexpected end of file: " + why) {};
+	};
+
+	class BlockNotFoundException : Exception
+	{
+	public:
+		BlockNotFoundException(const std::string name) : Exception("Can't find block with name " + name) {};
 	};
 }
 

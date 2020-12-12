@@ -10,6 +10,7 @@ namespace labConstants
 	static const std::string OPERATOR_NEXT = "->";
 	static const std::string OPERATOR_SET = "=";
 
+	static const std::string EMPTY_BLOCK = "emptyblock";
 	static const std::string READFILE = "readfile";
 	static const std::string WRITEFILE = "writefile";
 	static const std::string DUMP = "dump";
