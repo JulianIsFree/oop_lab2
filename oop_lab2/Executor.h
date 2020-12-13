@@ -6,7 +6,7 @@
 
 namespace labExecutor
 {
-	using WorkflowWorker = labWorker::WorkflowWorker;
+	using WorkflowWorkerSmartPointer = labWorker::WorkflowWorkerSmartPointer;
 
 	class Executor
 	{
@@ -18,17 +18,17 @@ namespace labExecutor
 	class WorkerExecutor: public Executor
 	{
 	protected:
-		std::vector<T>& toExecute;
+		std::vector<T> toExecute;
 	public:
-		WorkerExecutor(std::vector<T> &toExecute) : toExecute(toExecute) {};
+		WorkerExecutor(const std::vector<T> &toExecute) : toExecute(toExecute) {};
 	};
 
-	class WorkflowWorkerExecutor : WorkerExecutor<WorkflowWorker*>
+	class WorkflowWorkerExecutor : WorkerExecutor<WorkflowWorkerSmartPointer>
 	{
 		// Executor isn't responsible for freeing vector
 		// but Builder is, if any
 	public:
-		WorkflowWorkerExecutor(std::vector<WorkflowWorker*>& toExecute) : WorkerExecutor(toExecute) {};
+		WorkflowWorkerExecutor(const std::vector<WorkflowWorkerSmartPointer>& toExecute) : WorkerExecutor(toExecute) {};
 		virtual void run() override;
 	};
 }

@@ -1,4 +1,5 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+#define _CRT_SECURE_NO_WARNINGS
 #include <vector>
 #include <string>
 

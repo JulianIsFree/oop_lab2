@@ -28,6 +28,23 @@ namespace labWorker
 		virtual void setInput(const std::vector<std::string>& newInput)  { input = newInput; };
 	};
 
+	class WorkflowWorkerSmartPointer
+	{
+	private:
+		WorkflowWorker *worker;
+	public:
+		WorkflowWorkerSmartPointer(WorkflowWorker * worker) : worker(worker) {};
+		WorkflowWorkerSmartPointer(const WorkflowWorkerSmartPointer& other) { *this = other; };
+		WorkflowWorkerSmartPointer(WorkflowWorkerSmartPointer&& other) { *this = std::move(other); };
+
+		~WorkflowWorkerSmartPointer() { delete worker; }
+		WorkflowWorker operator*() const { return *worker; };
+		WorkflowWorker* operator()() { return worker; };
+		WorkflowWorkerSmartPointer& operator=(const WorkflowWorkerSmartPointer& other) { worker = new WorkflowWorker(*other); return *this; };
+		WorkflowWorkerSmartPointer& operator=(WorkflowWorkerSmartPointer&& other) { worker = other.worker; other.worker = nullptr; return *this; };
+		
+	};
+	
 	class FileReaderWorker : public WorkflowWorker
 	{
 	public:

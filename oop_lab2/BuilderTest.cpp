@@ -28,10 +28,14 @@ TEST(WorkflowBuilder, run_1)
 	auto result = builder.getBuiltCode();
 
 	EXPECT_EQ(result.size(), chain.size());
-	EXPECT_EQ(typeid(*result[0]), typeid(FileReaderWorker));
-	EXPECT_EQ(typeid(*result[1]), typeid(GrepWorker));
-	EXPECT_EQ(typeid(*result[2]), typeid(ReplaceWorker));
-	EXPECT_EQ(typeid(*result[3]), typeid(FileWriterWorker));
+	EXPECT_NO_THROW
+	({
+		EXPECT_EQ(typeid(dynamic_cast<FileReaderWorker*>(result[0]())), typeid(FileReaderWorker*));
+		EXPECT_EQ(typeid(dynamic_cast<GrepWorker*>(result[1]())), typeid(GrepWorker*));
+		EXPECT_EQ(typeid(dynamic_cast<ReplaceWorker*>(result[2]())), typeid(ReplaceWorker*));
+		EXPECT_EQ(typeid(dynamic_cast<FileWriterWorker*>(result[3]())), typeid(FileWriterWorker*));
+	});
+	
 }
 
 TEST(WorkflowBuilder, run_2)
@@ -54,6 +58,10 @@ TEST(WorkflowBuilder, run_2)
 	EXPECT_NO_THROW(builder.run());
 	auto result = builder.getBuiltCode();
 	EXPECT_EQ(result.size(), 2);
-	EXPECT_EQ(typeid(*result[0]), typeid(FileReaderWorker));
-	EXPECT_EQ(typeid(*result[1]), typeid(FileWriterWorker));
+
+	EXPECT_NO_THROW
+	({
+		EXPECT_EQ(typeid(dynamic_cast<FileReaderWorker*>(result[0]())), typeid(FileReaderWorker*));
+		EXPECT_EQ(typeid(dynamic_cast<FileWriterWorker*>(result[1]())), typeid(FileWriterWorker*));
+	});
 }

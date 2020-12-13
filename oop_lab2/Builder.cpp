@@ -2,12 +2,6 @@
 #include "Worker.h"
 #include "Exception.h"
 
-labBuilder::WorkflowBuilder::~WorkflowBuilder()
-{
-	for (auto iter = sequence.begin(); iter != sequence.end(); ++iter)
-		delete *iter;
-}
-
 void labBuilder::WorkflowBuilder::run()
 {
 	using namespace labBlock;
@@ -48,7 +42,7 @@ void labBuilder::WorkflowBuilder::run()
 	checkOutputFlag();
 }
 
-std::vector<labWorker::WorkflowWorker*> labBuilder::WorkflowBuilder::getBuiltCode() const
+const std::vector<labWorker::WorkflowWorkerSmartPointer>& labBuilder::WorkflowBuilder::getBuiltCode() const
 {
 	using namespace labException;
 	

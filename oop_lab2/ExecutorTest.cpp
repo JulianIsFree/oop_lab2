@@ -26,19 +26,14 @@ TEST(WorkflowWorkerExecutor, run)
 	const string outFileName = "WorkflowWorkerExecutorRunResult.txt";
 	const string subOutFileName = "WorkflowWorkerExecutorRunSubResult.txt";
 	createFile(inFileName, content);
-	FileReaderWorker id0({inFileName});
-	GrepWorker id1({ "test" });
-	FileDumpWorker id2({ subOutFileName });
-	ReplaceWorker id3({ "test", "develop" });
-	FileWriterWorker id4({ outFileName });
 	
-	vector<WorkflowWorker*> toExecute =
+	vector<WorkflowWorkerSmartPointer> toExecute =
 	{
-		&id0,
-		&id1,
-		&id2,
-		&id3,
-		&id4
+		new FileReaderWorker({inFileName}),
+		new GrepWorker({ "test" }),
+		new FileDumpWorker({ subOutFileName }),
+		new ReplaceWorker({ "test", "develop" }),
+		new FileWriterWorker({ outFileName })
 	};
 
 	WorkflowWorkerExecutor executor(toExecute);

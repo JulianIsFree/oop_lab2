@@ -11,12 +11,11 @@ namespace labBuilder
 	{
 	public:
 		virtual void run() {};
-		virtual std::vector<T*> getBuiltCode() const { return std::vector<labWorker::WorkflowWorker*>(); };
 	};
 
 	// 1 builder per code-sequence
 	// and once it's ready-to-execute code is obtained it must throw an exception on other return
-	class WorkflowBuilder : public Builder<labWorker::WorkflowWorker>
+	class WorkflowBuilder : public Builder<labWorker::WorkflowWorkerSmartPointer>
 	{
 		class ParamParser
 		{
@@ -34,7 +33,7 @@ namespace labBuilder
 		};
 		ParamParser paramParser;
 		const std::vector<labBlock::Block>& blockChain;
-		std::vector<labWorker::WorkflowWorker*> sequence;
+		std::vector<labWorker::WorkflowWorkerSmartPointer> sequence;
 		mutable bool isCodeObtained;
 
 		void checkInputFlag();
@@ -45,9 +44,8 @@ namespace labBuilder
 		WorkflowBuilder(const std::vector<labBlock::Block>& blockChain, const std::vector<std::string>& args) : 
 			blockChain(blockChain), paramParser(args), isCodeObtained(false) {};
 
-		~WorkflowBuilder();
 		virtual void run() override;
-		virtual std::vector<labWorker::WorkflowWorker*> getBuiltCode() const override;
+		const std::vector<labWorker::WorkflowWorkerSmartPointer>& getBuiltCode() const;
 	};
 }
 

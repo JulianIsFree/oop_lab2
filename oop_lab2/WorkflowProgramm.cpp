@@ -1,6 +1,7 @@
 #include <iostream>
 #include "WorkflowProgramm.h"
 #include "Exception.h"
+
 void labProgramm::WorkflowProgramm::pars(int argc, char ** argv)
 {
 	if (argc >= 2)
@@ -9,6 +10,7 @@ void labProgramm::WorkflowProgramm::pars(int argc, char ** argv)
 	for (int i = 2; i < argc; ++i)
 		args.push_back(std::string(argv[i]));
 }
+
 labProgramm::WorkflowProgramm::WorkflowProgramm(int argc, char * argv[]) {pars(argc, argv); };
 
 void labProgramm::WorkflowProgramm::run()
