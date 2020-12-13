@@ -47,12 +47,16 @@
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="Worker.h" />
+    <ClInclude Include="WorkflowProgramm.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Builder.cpp" />
+    <ClCompile Include="BuilderTest.cpp" />
     <ClCompile Include="Compiler.cpp" />
     <ClCompile Include="CompilerTest.cpp" />
+    <ClCompile Include="Executor.cpp" />
+    <ClCompile Include="ExecutorTest.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="ParserTest.cpp" />
     <ClCompile Include="TextProcessor.cpp" />
@@ -61,6 +65,11 @@
     <ClCompile Include="Token.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="WorkerTest.cpp" />
+    <ClCompile Include="WorkflowProgramm.cpp" />
+    <ClCompile Include="WorkflowProgrammTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="README" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

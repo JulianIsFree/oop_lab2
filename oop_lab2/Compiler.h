@@ -13,7 +13,6 @@ using namespace labTextProcessor;
 
 namespace labCompiler
 {
-	template <class T> 
 	class Compiler
 	{
 	public:
@@ -26,18 +25,17 @@ namespace labCompiler
 	// compiler isn't responsible for exception processing
 	// and it doesn't compile anything at all
 	// the name of the class just represents the idea
-	class WorkflowCompiler : public Compiler<labBlock::Block>
+	class WorkflowCompiler : public Compiler
 	{
 	private:
 		std::vector<labBlock::Block> blockChain; // chain to execute
 		std::map<std::string, labBlock::Block> blockTable;	// table: (identifier, block)
 
-		/* 
-		Both parser and analyzer must guarantee strong exception safety 
+		/* Both parser and analyzer must guarantee strong exception safety 
 			...but they don't.
 		Since it'a problem I would find out solution in the future.
-		TODO: make Workflow-things guarantee strong exception safety
-		*/
+		TODO: make Workflow-things guarantee strong exception safety */
+		
 		WorkflowTextProcessor processor;
 		WorkflowParser parser;
 

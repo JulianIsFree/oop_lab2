@@ -32,7 +32,7 @@ namespace labBlock
 		std::vector<T> content; 
 	public:
 		_Block(BlockType type = BlockType::EMPTY_BLOCK) : type(type) {};
-		_Block(BlockType type, const std::vector<T>& content) : _Block(type), content(content) {};
+		_Block(BlockType type, const std::vector<T>& content) : type(type), content(content) {};
 		
 		BlockType getType() const { return type; };
 		const std::vector<T>& getContent() const { return content; };

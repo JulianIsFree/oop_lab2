@@ -2,11 +2,19 @@
 #include "Worker.h"
 #include "Exception.h"
 
+labBuilder::WorkflowBuilder::~WorkflowBuilder()
+{
+	for (auto iter = sequence.begin(); iter != sequence.end(); ++iter)
+		delete *iter;
+}
+
 void labBuilder::WorkflowBuilder::run()
 {
 	using namespace labBlock;
 	using namespace labException;
 	using namespace labWorker;
+
+	checkInputFlag();
 
 	for (auto iter = blockChain.cbegin(); iter != blockChain.cend(); ++iter)
 	{
@@ -35,5 +43,104 @@ void labBuilder::WorkflowBuilder::run()
 		default:
 			throw ShouldNotReachThereException("Default case of WorkflowBuilder.run()");
 		}
+	}
+
+	checkOutputFlag();
+}
+
+std::vector<labWorker::WorkflowWorker*> labBuilder::WorkflowBuilder::getBuiltCode() const
+{
+	using namespace labException;
+	
+	if (isCodeObtained)
+		throw NoCodeToGetException();
+
+	isCodeObtained = true;
+	return sequence;
+}
+
+void labBuilder::WorkflowBuilder::checkInputFlag()
+{
+	using namespace labException;
+	using namespace labBlock;
+	using namespace labWorker;
+
+	if (blockChain.size() > 0)
+	{
+		if (blockChain.begin()->getType() != BlockType::READFILE)
+		{
+			if (paramParser.iFlagSet)
+				sequence.push_back(new FileReaderWorker({ paramParser.inputFileName }));
+			else
+				throw NoInputFileException();
+		}
+	}
+	else
+	{
+		if (paramParser.iFlagSet)
+			sequence.push_back(new FileReaderWorker({ paramParser.inputFileName }));
+		else
+			throw NoInputFileException();
+	}
+}
+
+void labBuilder::WorkflowBuilder::checkOutputFlag()
+{
+	using namespace labBlock;
+	using namespace labException;
+	using namespace labWorker;
+	if (blockChain.size() > 0)
+	{
+		if (blockChain.rbegin()->getType() != BlockType::WRITEFILE)
+		{
+			if (paramParser.oFlagSet)
+				sequence.push_back(new FileWriterWorker({ paramParser.outputFIleName }));
+			else
+				throw NoInputFileException();
+		}
+	}
+	else
+	{
+		if (paramParser.oFlagSet)
+			sequence.push_back(new FileWriterWorker({ paramParser.outputFIleName }));
+		else
+			throw NoInputFileException();
+	}
+}
+
+void labBuilder::WorkflowBuilder::ParamParser::pars()
+{
+	using namespace labException;
+	// TODO: replace with iterators
+	for (size_t i = 0; i < args.size(); ++i)
+	{
+		std::string word = args[i];
+		if (word == "-i")
+		{
+			if (iFlagSet)
+				throw BadCommandArgsException("-i flag set twice");
+			if (i < args.size() - 1)
+			{
+				iFlagSet = true;
+				inputFileName = args[++i];
+			}
+			else 
+				throw BadCommandArgsException("input file expected");
+		}
+		else if (word == "-o")
+		{
+
+			if (oFlagSet)
+				throw BadCommandArgsException("-o flag set twice");
+			if (i < args.size() - 1)
+			{
+				oFlagSet = true;
+				outputFIleName = args[++i];
+			}
+			else
+				throw BadCommandArgsException("output file expected");
+		}
+		else
+			throw BadCommandArgsException("unexpected flag");
 	}
 }

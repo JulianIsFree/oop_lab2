@@ -80,6 +80,30 @@ namespace labException
 	public:
 		BlockNotFoundException(const std::string name) : Exception("Can't find block with name " + name) {};
 	};
+
+	class NoInputFileException : Exception
+	{
+	public:
+		NoInputFileException() : Exception("First block in block sequence isn't a READFILE and flag -i isn't set") {};
+	};
+
+	class NoOutputFileException : Exception
+	{
+	public:
+		NoOutputFileException() : Exception("Last block in block sequence isn't a WRITEFILE and -o flag isn't set") {};
+	};
+
+	class BadCommandArgsException : Exception
+	{
+	public:
+		BadCommandArgsException(const std::string& why) : Exception("Bad command-line arguments: " + why) {};
+	};
+
+	class NoCodeToGetException : Exception
+	{
+	public:
+		NoCodeToGetException() : Exception("WorkflowBuilder isn't suited to get his code twice") {};
+	};
 }
 
 #endif // !EXCEPTION_H

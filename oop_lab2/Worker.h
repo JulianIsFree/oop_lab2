@@ -11,8 +11,6 @@ namespace labWorker
 	{
 	public:
 		virtual void doWork() {};
-		virtual const std::vector<T>& getOutput() const { return std::vector<T>(); };
-		virtual void setInput(const std::vector<T>&) {};
 	};
 	
 	// once Worker did his work and it's result obtained it must be destroyed
@@ -23,10 +21,11 @@ namespace labWorker
 		std::vector<std::string> output;
 		std::vector<std::string> args;
 	public:
+		WorkflowWorker() {};
 		WorkflowWorker(const std::vector<std::string>& args) : args(args) {};
 		virtual void doWork() override { output = input; };
-		virtual const std::vector <std::string> & getOutput() const override { return output; };
-		virtual void setInput(const std::vector<std::string>& newInput) override { input = newInput; };
+		virtual const std::vector <std::string> & getOutput() const  { return output; };
+		virtual void setInput(const std::vector<std::string>& newInput)  { input = newInput; };
 	};
 
 	class FileReaderWorker : public WorkflowWorker
