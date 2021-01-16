@@ -1,6 +1,7 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 #include <vector>
+#include <memory>
 #include "Builder.h"
 #include "Worker.h"
 
@@ -23,12 +24,12 @@ namespace labExecutor
 		WorkerExecutor(const std::vector<T> &toExecute) : toExecute(toExecute) {};
 	};
 
-	class WorkflowWorkerExecutor : WorkerExecutor<WorkflowWorkerSmartPointer>
+	class WorkflowWorkerExecutor : WorkerExecutor<std::shared_ptr<labWorker::WorkflowWorker>>
 	{
 		// Executor isn't responsible for freeing vector
 		// but Builder is, if any
 	public:
-		WorkflowWorkerExecutor(const std::vector<WorkflowWorkerSmartPointer>& toExecute) : WorkerExecutor(toExecute) {};
+		WorkflowWorkerExecutor(const std::vector<std::shared_ptr<labWorker::WorkflowWorker>>& toExecute) : WorkerExecutor(toExecute) {};
 		virtual void run() override;
 	};
 }

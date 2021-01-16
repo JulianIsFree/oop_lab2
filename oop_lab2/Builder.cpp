@@ -17,22 +17,22 @@ void labBuilder::WorkflowBuilder::run()
 		switch (block.getType())
 		{
 		case BlockType::READFILE:
-			sequence.push_back(new FileReaderWorker(content));
+			sequence.push_back(std::shared_ptr<FileReaderWorker>(new FileReaderWorker(content)));
 			break;
 		case BlockType::WRITEFILE:
-			sequence.push_back(new FileWriterWorker(content));
+			sequence.push_back(std::shared_ptr<FileWriterWorker>(new FileWriterWorker(content)));
 			break;
 		case BlockType::DUMP:
-			sequence.push_back(new FileDumpWorker(content));
+			sequence.push_back(std::shared_ptr<FileDumpWorker>(new FileDumpWorker(content)));
 			break;
 		case BlockType::SORT:
-			sequence.push_back(new SortWorker(content));
+			sequence.push_back(std::shared_ptr<SortWorker>(new SortWorker(content)));
 			break;
 		case BlockType::GREP:
-			sequence.push_back(new GrepWorker(content));
+			sequence.push_back(std::shared_ptr<GrepWorker>(new GrepWorker(content)));
 			break;
 		case BlockType::REPLACE:
-			sequence.push_back(new ReplaceWorker(content));
+			sequence.push_back(std::shared_ptr<ReplaceWorker>(new ReplaceWorker(content)));
 			break;
 		default:
 			throw ShouldNotReachThereException("Default case of WorkflowBuilder.run()");
@@ -42,7 +42,7 @@ void labBuilder::WorkflowBuilder::run()
 	checkOutputFlag();
 }
 
-const std::vector<labWorker::WorkflowWorkerSmartPointer>& labBuilder::WorkflowBuilder::getBuiltCode() const
+const std::vector<std::shared_ptr<labWorker::WorkflowWorker>>& labBuilder::WorkflowBuilder::getBuiltCode() const
 {
 	using namespace labException;
 	
@@ -64,7 +64,7 @@ void labBuilder::WorkflowBuilder::checkInputFlag()
 		if (blockChain.begin()->getType() != BlockType::READFILE)
 		{
 			if (paramParser.iFlagSet)
-				sequence.push_back(new FileReaderWorker({ paramParser.inputFileName }));
+				sequence.push_back(std::shared_ptr<FileReaderWorker>(new FileReaderWorker({ paramParser.inputFileName })));
 			else
 				throw NoInputFileException();
 		}
@@ -72,7 +72,7 @@ void labBuilder::WorkflowBuilder::checkInputFlag()
 	else
 	{
 		if (paramParser.iFlagSet)
-			sequence.push_back(new FileReaderWorker({ paramParser.inputFileName }));
+			sequence.push_back(std::shared_ptr<FileReaderWorker>(new FileReaderWorker({ paramParser.inputFileName })));
 		else
 			throw NoInputFileException();
 	}
@@ -88,7 +88,7 @@ void labBuilder::WorkflowBuilder::checkOutputFlag()
 		if (blockChain.rbegin()->getType() != BlockType::WRITEFILE)
 		{
 			if (paramParser.oFlagSet)
-				sequence.push_back(new FileWriterWorker({ paramParser.outputFIleName }));
+				sequence.push_back(std::shared_ptr<FileWriterWorker>(new FileWriterWorker({ paramParser.outputFIleName })));
 			else
 				throw NoInputFileException();
 		}
@@ -96,7 +96,7 @@ void labBuilder::WorkflowBuilder::checkOutputFlag()
 	else
 	{
 		if (paramParser.oFlagSet)
-			sequence.push_back(new FileWriterWorker({ paramParser.outputFIleName }));
+			sequence.push_back(std::shared_ptr<FileWriterWorker>(new FileWriterWorker({ paramParser.outputFIleName })));
 		else
 			throw NoInputFileException();
 	}

@@ -1,6 +1,7 @@
 #ifndef BUILDER_H
 #define BUILDER_H
-#include <vector>
+#include <list>
+#include <memory>
 #include "Worker.h"
 #include "Block.h"
 
@@ -32,20 +33,20 @@ namespace labBuilder
 			ParamParser(const std::vector<std::string>& args) : args(args), iFlagSet(false), oFlagSet(false) { pars(); };
 		};
 		ParamParser paramParser;
-		const std::vector<labBlock::Block>& blockChain;
-		std::vector<labWorker::WorkflowWorkerSmartPointer> sequence;
+		const std::list<labBlock::Block>& blockChain;
+		std::vector<std::shared_ptr<labWorker::WorkflowWorker>> sequence;
 		mutable bool isCodeObtained;
 
 		void checkInputFlag();
 		void checkOutputFlag();
 	public:
-		WorkflowBuilder(const std::vector<labBlock::Block>& blockChain) : 
+		WorkflowBuilder(const std::list<labBlock::Block>& blockChain) : 
 			blockChain(blockChain), paramParser(std::vector <std::string>()), isCodeObtained(false) {};
-		WorkflowBuilder(const std::vector<labBlock::Block>& blockChain, const std::vector<std::string>& args) : 
+		WorkflowBuilder(const std::list<labBlock::Block>& blockChain, const std::vector<std::string>& args) :
 			blockChain(blockChain), paramParser(args), isCodeObtained(false) {};
 
 		virtual void run() override;
-		const std::vector<labWorker::WorkflowWorkerSmartPointer>& getBuiltCode() const;
+		const std::vector<std::shared_ptr<labWorker::WorkflowWorker>>& getBuiltCode() const;
 	};
 }
 

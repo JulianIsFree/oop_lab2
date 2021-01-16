@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "Block.h"
 
 namespace labWorker
 {
@@ -10,7 +11,7 @@ namespace labWorker
 	class Worker
 	{
 	public:
-		virtual void doWork() {};
+		virtual void doWork() = 0;
 	};
 	
 	// once Worker did his work and it's result obtained it must be destroyed
@@ -26,23 +27,27 @@ namespace labWorker
 		virtual void doWork() override { output = input; };
 		virtual const std::vector <std::string> & getOutput() const  { return output; };
 		virtual void setInput(const std::vector<std::string>& newInput)  { input = newInput; };
+
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::EMPTY_BLOCK; }
 	};
 
+	// add input-output check and rename class
 	class WorkflowWorkerSmartPointer
 	{
 	private:
 		WorkflowWorker *worker;
 	public:
 		WorkflowWorkerSmartPointer(WorkflowWorker * worker) : worker(worker) {};
-		WorkflowWorkerSmartPointer(const WorkflowWorkerSmartPointer& other) { *this = other; };
+		WorkflowWorkerSmartPointer(const WorkflowWorkerSmartPointer& other) { worker = new WorkflowWorker(*other.worker); };
 		WorkflowWorkerSmartPointer(WorkflowWorkerSmartPointer&& other) { *this = std::move(other); };
 
 		~WorkflowWorkerSmartPointer() { delete worker; }
-		WorkflowWorker operator*() const { return *worker; };
+		WorkflowWorker& operator*() const { return *worker; };
+		WorkflowWorker* operator->() const { return worker; };
 		WorkflowWorker* operator()() { return worker; };
 		WorkflowWorkerSmartPointer& operator=(const WorkflowWorkerSmartPointer& other) { worker = new WorkflowWorker(*other); return *this; };
+		//WorkflowWorkerSmartPointer& operator=(const WorkflowWorkerSmartPointer& other) = delete;
 		WorkflowWorkerSmartPointer& operator=(WorkflowWorkerSmartPointer&& other) { worker = other.worker; other.worker = nullptr; return *this; };
-		
 	};
 	
 	class FileReaderWorker : public WorkflowWorker
@@ -50,6 +55,7 @@ namespace labWorker
 	public:
 		FileReaderWorker(const std::vector<std::string>& args) : WorkflowWorker(args) {};
 		virtual void doWork() override;
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::READFILE; }
 	};
 
 	class FileWriterWorker : public WorkflowWorker
@@ -57,6 +63,8 @@ namespace labWorker
 	public:
 		FileWriterWorker(const std::vector<std::string>& args) : WorkflowWorker(args) {};
 		virtual void doWork() override;
+
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::WRITEFILE; }
 	};
 
 	class FileDumpWorker : public FileWriterWorker
@@ -64,6 +72,8 @@ namespace labWorker
 	public:
 		FileDumpWorker(const std::vector<std::string>& args) : FileWriterWorker(args) {};
 		virtual void doWork() override;
+
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::DUMP; }
 	};
 
 	class GrepWorker : public WorkflowWorker
@@ -71,6 +81,8 @@ namespace labWorker
 	public:
 		GrepWorker(const std::vector<std::string>& args) : WorkflowWorker(args) {};
 		virtual void doWork() override;
+
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::GREP; }
 	};
 
 	class SortWorker : public WorkflowWorker
@@ -78,6 +90,8 @@ namespace labWorker
 	public:
 		SortWorker(const std::vector<std::string>& args) : WorkflowWorker(args) {};
 		virtual void doWork() override;
+
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::SORT; }
 	};
 
 	class ReplaceWorker : public WorkflowWorker
@@ -85,6 +99,8 @@ namespace labWorker
 	public:
 		ReplaceWorker(const std::vector<std::string>& args) : WorkflowWorker(args) {};
 		virtual void doWork() override;
+
+		virtual labBlock::BlockType getBlockType() { return labBlock::BlockType::REPLACE; }
 	};
 
 }

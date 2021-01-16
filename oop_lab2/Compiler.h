@@ -1,7 +1,7 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 #include <map>
-#include <vector>
+#include <list>
 #include <string>
 
 #include "Parser.h"
@@ -18,7 +18,6 @@ namespace labCompiler
 	public:
 		Compiler(const std::string&) {};
 		virtual ~Compiler() {};
-
 		virtual void run() {};
 	};
 
@@ -28,7 +27,8 @@ namespace labCompiler
 	class WorkflowCompiler : public Compiler
 	{
 	private:
-		std::vector<labBlock::Block> blockChain; // chain to execute
+		// TODO: change to std::list
+		std::list<labBlock::Block> blockChain; // chain to execute
 		std::map<std::string, labBlock::Block> blockTable;	// table: (identifier, block)
 
 		/* Both parser and analyzer must guarantee strong exception safety 
@@ -40,7 +40,7 @@ namespace labCompiler
 		WorkflowParser parser;
 
 		// for strong exception safety
-		std::vector<labBlock::Block> chainBackUp;
+		std::list<labBlock::Block> chainBackUp;
 		std::map<std::string, labBlock::Block> tableBackUp;
 		void doBackUp();
 		void setBackUp();
@@ -53,7 +53,7 @@ namespace labCompiler
 	public:
 		WorkflowCompiler(const std::string& sourceFile);
 		virtual void run() override;
-		const std::vector<labBlock::Block>& getBlockChain() const { return blockChain; };
+		const std::list<labBlock::Block>& getBlockChain() const { return blockChain; };
 		const std::map<std::string, labBlock::Block>& getBlocks() const { return blockTable; };
 	};
 }

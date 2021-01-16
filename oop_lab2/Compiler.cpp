@@ -41,6 +41,11 @@ void labCompiler::WorkflowCompiler::processBlockSegment()
 				blockTable[parser.getBlockName()] = Block(parser.getBlock());
 		}
 	}
+	/*
+	desc
+	...
+	id1 -> id2
+	*/
 }
 
 // only 2 kinds of TokenTypes are allowed to be: BLOCK_ID and OPERATOR_NEXT
@@ -80,11 +85,12 @@ void labCompiler::WorkflowCompiler::processCodeSegment()
 			if (newBlockType == BlockType::EMPTY_BLOCK)
 				throw BlockDoesNotExistsException(name);
 			
-			BlockType lastBlockType = blockChain[blockChain.size() - 1].getType();
+			BlockType lastBlockType = blockChain.rbegin()->getType();
 
-			if (!isBlockSequenceAllowed(lastBlockType, newBlockType))
-				throw BlockSequenceIsNotAllowedException(
-					getBlockTypeName(lastBlockType), getBlockTypeName(newBlockType));
+			// moved to Executor::run()
+			//if (!isBlockSequenceAllowed(lastBlockType, newBlockType))
+			//	throw BlockSequenceIsNotAllowedException(
+			//		getBlockTypeName(lastBlockType), getBlockTypeName(newBlockType));
 
 			if (blockTable.find(name) == blockTable.end())
 				throw BlockNotFoundException(name);
@@ -118,7 +124,6 @@ void labCompiler::WorkflowCompiler::run()
 	catch (Exception e)
 	{
 		doBackUp();
-		throw e;
+		throw e; // ~ throw e, but without copying
 	}
 }
-

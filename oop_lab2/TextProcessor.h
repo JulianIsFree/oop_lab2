@@ -38,7 +38,7 @@ namespace labTextProcessor
 		// and after this call imbue on stream 'b', for 'b' there will be same locales as for 'a' plus 
 		// b's own locales.
 		virtual bool isCorrect(const std::string& word) const override;
-		virtual bool hasNext()const override;
+		virtual bool hasNext() const override;
 	};
 }
 

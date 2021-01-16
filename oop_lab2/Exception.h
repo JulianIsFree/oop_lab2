@@ -6,12 +6,12 @@
 
 namespace labException
 {
-	class Exception : std::exception
+	class Exception : public std::exception
 	{
-		std::string message;
+		//std::string message;
 	public:
-		Exception(const std::string& message) : message(message) {};
-		std::string what() { return message; };
+		Exception(const std::string& message) : std::exception(message.c_str()) {};
+		//std::string what() { return message; };
 	};
 
 	class FileNotOpened : Exception
@@ -53,7 +53,7 @@ namespace labException
 	class BlockSequenceIsNotAllowedException : Exception
 	{
 	public:
-		BlockSequenceIsNotAllowedException(const std::string first, const std::string second) : 
+		BlockSequenceIsNotAllowedException(const std::string& first, const std::string& second) : 
 			Exception("BlockType " + second + " isn't allowed after " + first) {};
 	};
 
